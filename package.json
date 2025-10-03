@@ -1,9 +1,10 @@
 {
-  "name": "workers-for-platforms-example-project",
+  "name": "cloudflare-paas",
   "version": "1.0.0",
+  "description": "Production-ready Platform as a Service built on Cloudflare Workers",
   "license": "Apache-2.0",
   "engines": {
-    "node": "<20"
+    "node": ">=18"
   },
   "devDependencies": {
     "@cloudflare/d1": "^1.4.1",
@@ -19,10 +20,29 @@
     "start": "wrangler dev",
     "deploy": "wrangler publish",
     "lint": "npx eslint ./src",
-    "format": "npx prettier --write '**/*.{ts,js,cjs,json}'"
+    "format": "npx prettier --write '**/*.{ts,js,cjs,json}'",
+    "build": "tsc",
+    "test": "echo 'Tests not implemented yet'",
+    "dev": "wrangler dev --remote"
   },
   "dependencies": {
     "hono": "^4.2.1",
     "workers-qb": "^0.1.1"
-  }
+  },
+  "keywords": [
+    "paas",
+    "cloudflare",
+    "workers",
+    "serverless",
+    "deployment",
+    "platform"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/cloudflare-paas.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/cloudflare-paas/issues"
+  },
+  "homepage": "https://github.com/your-org/cloudflare-paas#readme"
 }

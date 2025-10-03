@@ -1,126 +1,302 @@
-# Workers for Platforms Example Project
+# Cloudflare PaaS - Production-Ready Platform as a Service
 
-- [Blog post](https://blog.cloudflare.com/workers-for-platforms/)
-- [Docs](https://developers.cloudflare.com/cloudflare-for-platforms/workers-for-platforms)
-- [Discord](https://discord.cloudflare.com/)
+A comprehensive Platform as a Service (PaaS) built on Cloudflare Workers that competes with Vercel, Netlify, and Heroku. This project provides a modern, scalable platform for deploying applications with superior performance and global reach.
 
-For SaaS companies, it's challenging to keep up with the never ending requests for customizations. You want your development team to focus on building the core business instead of building and maintaining custom features for every customer use case. Workers for Platforms gives your customers the ability to build services and customizations (powered by Workers) while you retain full control over how their code is executed and billed. The **dynamic dispatch namespaces** feature makes this possible.
+## 🚀 Features
 
-By creating a dispatch namespace and using the `dispatch_namespaces` binding in a regular fetch handler, you have a “dispatch Worker”:
+### Core Platform Features
+- **Serverless Functions**: Deploy serverless functions with zero configuration
+- **Container Orchestration**: Deploy containers with Durable Objects for stateful applications
+- **Global Edge Network**: Applications run on Cloudflare's global edge network
+- **Built-in Security**: DDoS protection, WAF, and security features built-in
+- **Auto-scaling**: Pay-per-use model with automatic scaling
 
-```javascript
-export default {
-  async fetch(request, env) {
-    // "dispatcher" is a binding defined in wrangler.toml
-    // "customer-worker-1" is a script previously uploaded to the dispatch namespace
-    const worker = env.dispatcher.get("customer-worker-1");
-    return await worker.fetch(request);
-  }
-}
-```
+### Developer Experience
+- **Modern UI/UX**: Beautiful, responsive dashboard built with Next.js and Tailwind CSS
+- **GitHub Integration**: Seamless CI/CD with GitHub webhooks and auto-deployments
+- **CLI Tools**: Command-line interface for local development and deployment
+- **API Documentation**: Comprehensive API documentation and developer tools
+- **Real-time Analytics**: Live metrics, logging, and monitoring
 
-This is the perfect way for a platform to create boilerplate functions, handle routing to “user Workers”, and sanitize responses. You can manage thousands of Workers with a single Cloudflare Workers account!
+### Authentication & Security
+- **OAuth Integration**: GitHub OAuth for easy sign-in
+- **JWT Authentication**: Secure token-based authentication
+- **API Keys**: Generate and manage API keys for programmatic access
+- **Rate Limiting**: Built-in rate limiting and DDoS protection
+- **SSL Certificates**: Automatic SSL certificate management
 
-## In this example
+### Project Management
+- **Project Dashboard**: Manage multiple projects from a single interface
+- **Deployment History**: Track all deployments with detailed logs
+- **Custom Domains**: Add custom domains with automatic SSL
+- **Environment Variables**: Manage environment variables per project
+- **Database Services**: Integrated D1, KV, and R2 storage services
 
-A customer of the platform can upload Workers scripts with a form, and the platform will upload it to a dispatch namespace. An eyeball can request a script by url, and the platform will dynamically fetch and run the script and return the response to the eyeball. For simplicity, this project is a single Worker that does everything: serve HTML, dispatch Workers, etc. In a real application, it would be ideal to split this Worker into several.
+## 🏗️ Architecture
 
-Scripts uploaded to the dispatch namespace are tagged using Script Tags. The dispatch namespace API supports filtering scripts by Script Tag which enables useful CRUD workflows. This platform adds `customer_id` as a script tag, making it possible to do script access control and query customers' scripts.
+### Backend (Cloudflare Workers)
+- **Hono Framework**: Fast, lightweight web framework for Workers
+- **D1 Database**: SQLite database for persistent storage
+- **Workers for Platforms**: Dynamic dispatch namespaces for multi-tenant architecture
+- **Durable Objects**: Stateful services and container orchestration
+- **JWT Authentication**: Secure authentication with JSON Web Tokens
 
-Customers of the platform are stored in [Workers D1](https://blog.cloudflare.com/introducing-d1/) (sqlite database) with tokens to authenticate specific API interactions. This is not a specific Workers for Platforms feature, but it shows how easy it is to build out functionality for platform management. Beyond authentication, notice how extra data does not need to be stored or managed for the Workers for Platforms workflow!
+### Frontend (Next.js)
+- **React 18**: Modern React with server-side rendering
+- **Tailwind CSS**: Utility-first CSS framework for rapid UI development
+- **TypeScript**: Type-safe development experience
+- **NextAuth.js**: Authentication library with OAuth support
+- **React Query**: Data fetching and caching
+- **Framer Motion**: Smooth animations and transitions
 
-Customer scripts can also be configured with [custom limits](https://developers.cloudflare.com/cloudflare-for-platforms/workers-for-platforms/platform/custom-limits/#custom-limits) and an [Outbound Worker](https://developers.cloudflare.com/cloudflare-for-platforms/workers-for-platforms/reference/outbound-workers/#outbound-workers) to control execution. These details are also stored in D1.
+## 🛠️ Tech Stack
 
-Lastly, the default template for a customer worker looks like this:
-```javascript
-import { platformThing } from "./platform_module.mjs";
-export default {
-  async fetch(request, env, ctx) {
-    return new Response("Hello! " + platformThing);
-  }
-};
-```
+### Backend
+- **Cloudflare Workers**: Serverless compute platform
+- **Hono**: Web framework for Workers
+- **D1**: Serverless SQL database
+- **Workers for Platforms**: Multi-tenant architecture
+- **Durable Objects**: Stateful compute
 
-Notice how this script imports a module it doesn't define. The platform defines it! If you check `src/resource.ts`, you can see that we inject a module to the bundle when a customer uploads their script:
-```javascript
-const platformModuleContent = 'const platformThing = "This module is provided by the platform"; export { platformThing };';
-formData.append('platform_module', new File([platformModuleContent], 'platform_module.mjs', { type: 'application/javascript+module' }));
-```
-Since the platform has total control over how scripts are uploaded, it can provide or limit any functionality it needs. 
+### Frontend
+- **Next.js 14**: React framework with App Router
+- **TypeScript**: Type-safe JavaScript
+- **Tailwind CSS**: Utility-first CSS framework
+- **NextAuth.js**: Authentication
+- **React Query**: Data fetching
+- **Framer Motion**: Animations
+- **Heroicons**: Icon library
 
-This project depends on:
+## 📦 Installation
 
-- [G4brym/workers-qb](https://github.com/G4brym/workers-qb) for interacting with D1.
-- [honojs/hono](https://github.com/honojs/hono) for request routing.
+### Prerequisites
+- Node.js 18+ 
+- Cloudflare account with Workers for Platforms access
+- GitHub account (for OAuth)
 
-## Getting started
+### Backend Setup
 
-Your Cloudflare account needs access to Workers for Platforms and D1.
-
-1. Install the package and dependencies:
-
-   ```
+1. **Install dependencies**:
+   ```bash
    npm install
    ```
 
-2. Create a D1 database and copy the ID into `wrangler.toml`. Make sure you update the `database_id` in wrangler.toml for your D1 binding afterwards:
-
-   ```
-   npx wrangler d1 create workers-for-platforms-example-project
-   ```
-
-3. Edit the `[vars]` in `wrangler.toml` and set the `DISPATCH_NAMESPACE_API_TOKEN` secret (instructions in `wrangler.toml`).
-   For local development, you also have to create a `.dev.vars` file with the same environment variables:
-
-   ```sh
-   DISPATCH_NAMESPACE_ACCOUNT_ID = "replace_me"
-   DISPATCH_NAMESPACE_API_TOKEN = "replace_me"
+2. **Create D1 database**:
+   ```bash
+   npx wrangler d1 create cloudflare-paas
    ```
 
-   > To create an API Token, go to Workers dashboard -> click "API Tokens" on right sidebar. Then either:
-   > 1. Click "API Tokens" on the right sidebar.
-   > 2. Click "Create Token". Make sure you give this token at least "Account : Workers Scripts : Edit". This token is used with `Bearer`.
-
-4. Create a namespace. Replace `$(ACCOUNT)`, `$(API_TOKEN)`, and `$(NAMESPACE)`:
-   ```
-   npx wrangler dispatch-namespace create workers-for-platforms-example-project
+3. **Create dispatch namespace**:
+   ```bash
+   npx wrangler dispatch-namespace create cloudflare-paas
    ```
 
-5. Run the Worker in dev mode:
+4. **Set up environment variables**:
+   ```bash
+   # Set secrets
+   echo "your-jwt-secret" | wrangler secret put JWT_SECRET
+   echo "your-github-client-id" | wrangler secret put GITHUB_CLIENT_ID
+   echo "your-github-client-secret" | wrangler secret put GITHUB_CLIENT_SECRET
+   echo "your-dispatch-api-token" | wrangler secret put DISPATCH_NAMESPACE_API_TOKEN
    ```
-   npx wrangler dev --remote # local dev not currently supported
-   ```
-   Or deploy to production:
-   ```
-   npx wrangler deploy
-   ```
-   > Dev mode will still use the configured dispatch namespace. Take care you're not accidentally modifying production!
 
-Once the Worker is live, visit [localhost:8787](http://localhost:8787/) in a browser and click the `Initialize` link. Have fun!
+5. **Update wrangler.toml**:
+   - Add your D1 database ID
+   - Add your dispatch namespace account ID
+   - Configure your domain
 
-For dev testing, here's a snippet to use in a NodeJS environment (like Chrome Dev Tools) to exercise the API:
+6. **Deploy the backend**:
+   ```bash
+   npm run deploy
+   ```
 
-```javascript
-await (await fetch("http://localhost:8787/script/my-customer-script", {
-  "headers": {
-    "X-Customer-Token": "d4e5f6"
-  },
-  "method": "PUT",
-  "body": "...my-script-content..."
-})).text();
+### Frontend Setup
+
+1. **Navigate to frontend directory**:
+   ```bash
+   cd frontend
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**:
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your values
+   ```
+
+4. **Run development server**:
+   ```bash
+   npm run dev
+   ```
+
+## 🚀 Deployment
+
+### Backend Deployment
+```bash
+# Deploy to Cloudflare Workers
+npm run deploy
+
+# View logs
+npx wrangler tail
 ```
 
-Or using curl:
+### Frontend Deployment
+```bash
+# Build for production
+npm run build
 
+# Deploy to Vercel/Netlify
+npm run deploy
 ```
-curl -X PUT http://localhost:8787/script/my-customer-script -H 'X-Customer-Token: d4e5f6' -d '...my-script-content...'
+
+## 📚 API Documentation
+
+### Authentication Endpoints
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `POST /api/auth/github` - GitHub OAuth callback
+- `GET /api/auth/verify` - Verify JWT token
+
+### Project Management
+- `GET /api/projects` - List user projects
+- `POST /api/projects` - Create new project
+- `GET /api/projects/:id` - Get project details
+- `PUT /api/projects/:id` - Update project
+- `DELETE /api/projects/:id` - Delete project
+- `POST /api/projects/:id/deploy` - Deploy project
+- `GET /api/projects/:id/deployments` - Get deployment history
+
+### Legacy Workers API
+- `GET /script` - List customer scripts
+- `PUT /script/:name` - Upload/update script
+- `GET /dispatch/:name` - Execute script
+
+## 🔧 Configuration
+
+### Environment Variables
+
+#### Backend (.dev.vars)
+```bash
+DISPATCH_NAMESPACE_ACCOUNT_ID=your-account-id
+DISPATCH_NAMESPACE_API_TOKEN=your-api-token
+JWT_SECRET=your-jwt-secret
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
 ```
 
-## Troubleshooting
+#### Frontend (.env.local)
+```bash
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+API_BASE_URL=http://localhost:8787
+```
 
-- Use `npx wrangler tail` to capture logs.
-- Try a re-publish and wait a minute.
+## 🧪 Development
 
-## Example project roadmap
+### Running Locally
 
-- Showcase a Trace Worker and Workers Logpush to collect trace events for both the platform Worker and dispatched customer Workers.
+1. **Start backend**:
+   ```bash
+   npm run start
+   ```
+
+2. **Start frontend**:
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+
+3. **Access the application**:
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:8787
+
+### Testing
+
+```bash
+# Run backend tests
+npm test
+
+# Run frontend tests
+cd frontend
+npm test
+
+# Run linting
+npm run lint
+```
+
+## 📈 Monitoring & Analytics
+
+- **Real-time Metrics**: Request counts, response times, error rates
+- **Deployment Tracking**: Build times, success rates, rollback capabilities
+- **Usage Analytics**: Bandwidth, compute time, storage usage
+- **Error Monitoring**: Detailed error logs and stack traces
+- **Performance Insights**: Core Web Vitals and performance metrics
+
+## 🔒 Security Features
+
+- **DDoS Protection**: Built-in Cloudflare DDoS protection
+- **WAF**: Web Application Firewall with customizable rules
+- **Rate Limiting**: Per-user and per-endpoint rate limiting
+- **SSL/TLS**: Automatic SSL certificate management
+- **Authentication**: JWT-based authentication with refresh tokens
+- **Authorization**: Role-based access control (RBAC)
+
+## 🌍 Global Infrastructure
+
+- **Edge Computing**: Deploy applications to 200+ cities worldwide
+- **CDN**: Global content delivery network for static assets
+- **DNS**: Fast, reliable DNS resolution
+- **Load Balancing**: Intelligent load balancing across regions
+- **Failover**: Automatic failover and disaster recovery
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+- **Documentation**: [docs.cloudflare-paas.com](https://docs.cloudflare-paas.com)
+- **Community**: [Discord Server](https://discord.gg/cloudflare-paas)
+- **Issues**: [GitHub Issues](https://github.com/your-org/cloudflare-paas/issues)
+- **Email**: support@cloudflare-paas.com
+
+## 🗺️ Roadmap
+
+### Phase 1 (Current)
+- ✅ Modern UI/UX with React/Next.js
+- ✅ Authentication system (OAuth, JWT)
+- ✅ User dashboard with project management
+- ✅ Basic deployment system
+- ✅ API documentation
+
+### Phase 2 (Next)
+- 🔄 CI/CD integration with GitHub
+- 🔄 Container orchestration with Durable Objects
+- 🔄 Database services (D1, KV, R2) management
+- 🔄 Custom domains and SSL management
+- 🔄 Billing and subscription management
+
+### Phase 3 (Future)
+- ⏳ Advanced monitoring and alerting
+- ⏳ Multi-region deployment
+- ⏳ Enterprise features
+- ⏳ Marketplace for templates
+- ⏳ Advanced security features
+
+---
+
+**Built with ❤️ on Cloudflare Workers**

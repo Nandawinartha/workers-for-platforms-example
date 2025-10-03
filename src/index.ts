@@ -16,12 +16,18 @@ import {
 import { handleDispatchError, withCustomer, withDb } from './router';
 import { renderPage, BuildTable, UploadPage } from './render';
 import { DispatchLimits, OutboundWorker, WorkerArgs } from './types';
+import auth from './auth';
+import projects from './projects';
 
 const app = new Hono<{ Bindings: Env }>();
 
-app.get('/favicon.cio', () => {
+app.get('/favicon.ico', () => {
   return new Response();
 });
+
+// API Routes
+app.route('/api/auth', auth);
+app.route('/api/projects', projects);
 
 /*
  * Dumps the state of the app
