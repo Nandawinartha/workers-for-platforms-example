@@ -12,6 +12,7 @@ export type Env = {
   DISPATCH_NAMESPACE_NAME: string;
   DISPATCH_NAMESPACE_ACCOUNT_ID: string;
   DISPATCH_NAMESPACE_API_TOKEN: string;
+  JWT_SECRET: string;
 }
 
 interface Dispatcher {

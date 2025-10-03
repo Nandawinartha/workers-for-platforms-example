@@ -32,12 +32,56 @@ export interface WorkerArgs {
 export interface Customer {
   id: string;
   name: string;
+  email: string;
   plan_type: string;
+  avatar_url?: string;
+  github_id?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CustomerToken {
   customer_id: string;
   token: string;
+  expires_at?: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar_url?: string;
+  github_id?: string;
+  plan_type: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  description?: string;
+  customer_id: string;
+  status: 'active' | 'building' | 'error' | 'paused';
+  last_deployment?: string;
+  created_at: string;
+  updated_at: string;
+  domains: string[];
+  github_repo?: string;
+  build_command?: string;
+  output_directory?: string;
+}
+
+export interface Deployment {
+  id: string;
+  project_id: string;
+  status: 'success' | 'building' | 'error' | 'cancelled';
+  created_at: string;
+  duration?: number;
+  url?: string;
+  commit_hash?: string;
+  commit_message?: string;
+  logs?: string;
 }
 
 export interface ApiScript extends ResourceRecord {
